@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5956199687859364120}
   - component: {fileID: 8603464305199274799}
   m_Layer: 0
-  m_Name: Colonne
+  m_Name: Pillar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

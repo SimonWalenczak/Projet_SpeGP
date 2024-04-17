@@ -168,10 +168,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _roomSize: {x: 0, y: 0}
-  _valueRegeneration: 0.1
+  _valueRegeneration: 0.5
   _wallMesh: {fileID: 5400660067643640574, guid: a290fa0bc5c8f8047af97be3510867fd, type: 3}
   _doorMesh: {fileID: 7924210771754313817, guid: 37862b96c35f26540841baecde585516, type: 3}
+  _pillarMesh: {fileID: 4527239019359784145, guid: 6f3bc1f686d32ce49ab40942ec37c486, type: 3}
+  _numberOfDoors: 0
   Walls: []
+  Pillars: []
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
