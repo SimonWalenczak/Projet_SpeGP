@@ -167,14 +167,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d16af6c8454e1141a12e3612fb2915f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _roomMeshes: {fileID: 11400000, guid: 3578040a8d360e447abf39c752f1b347, type: 2}
   _roomSize: {x: 0, y: 0}
-  _valueRegeneration: 0.5
-  _wallMesh: {fileID: 5400660067643640574, guid: a290fa0bc5c8f8047af97be3510867fd, type: 3}
-  _doorMesh: {fileID: 7924210771754313817, guid: 37862b96c35f26540841baecde585516, type: 3}
-  _pillarMesh: {fileID: 4527239019359784145, guid: 6f3bc1f686d32ce49ab40942ec37c486, type: 3}
-  _numberOfDoors: 0
-  Walls: []
-  Pillars: []
+  UsingGenerationStep: 0
+  _regenerationStep: 0
+  RamdomDoorPosition: 0
+  DefinedDoorPosition: 1
+  _numberOfDoors: 5
+  WallNorth:
+    Direction: 2
+    NumberOfDoors: 1
+  WallSouth:
+    Direction: 3
+    NumberOfDoors: 1
+  WallWest:
+    Direction: 1
+    NumberOfDoors: 1
+  WallEast:
+    Direction: 0
+    NumberOfDoors: 1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
