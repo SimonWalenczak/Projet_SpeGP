@@ -12,6 +12,12 @@ public class RoomExpand : MonoBehaviour
     [Space(10)] [Header("Room Properties")] [SerializeField]
     private Vector2 _roomSize;
 
+    [SerializeField] private GameObject ExpandHandleLength;
+    [SerializeField] private GameObject ExpandHandleWidth;
+
+    private float _initialHandleLengthPosition;
+    private float _initialHandleWidthPosition;
+
     [Space(10)] public bool UsingGenerationStep;
 
     [ConditionalHide("UsingGenerationStep", true)] [SerializeField]
@@ -30,7 +36,7 @@ public class RoomExpand : MonoBehaviour
     private List<GameObject> Walls = new List<GameObject>();
 
     private List<GameObject> Pillars = new List<GameObject>();
-    
+
     //Hidden
     private float _previousRoomSizeX;
     private float _previousRoomSizeY;
@@ -66,11 +72,25 @@ public class RoomExpand : MonoBehaviour
 
         _previousRoomSizeX = _roomSize.x;
 
+        ExpandHandleLength.transform.position = new Vector3(transform.position.x + _wallSize.x, transform.position.y,
+            transform.position.z);
+        ExpandHandleWidth.transform.position = new Vector3(transform.position.x, transform.position.y,
+            transform.position.z + _wallSize.y);
+
+        _initialHandleLengthPosition = ExpandHandleLength.transform.position.x;
+        _initialHandleWidthPosition = ExpandHandleWidth.transform.position.z;
+
         CreateWalls();
     }
 
     private void Update()
     {
+        float diffA = ExpandHandleLength.transform.position.x - _initialHandleLengthPosition;
+        float diffB = ExpandHandleWidth.transform.position.z - _initialHandleWidthPosition;
+
+        _roomSize.x = _wallSize.x + diffA;
+        _roomSize.y = _wallSize.y + diffB;
+
         //Limit to minimum
         if (_roomSize.x <= _wallSize.x)
             _roomSize.x = _wallSize.x;
@@ -336,7 +356,7 @@ public class RoomExpand : MonoBehaviour
             // Remove the door and add the new wall to the list of walls
             Walls.Remove(wall);
             Destroy(wall);
-            
+
             Walls.Add(newWall);
         }
     }
