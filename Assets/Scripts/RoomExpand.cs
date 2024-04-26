@@ -12,6 +12,7 @@ public class RoomExpand : MonoBehaviour
     [Space(10)] [Header("Room Properties")] [SerializeField]
     private Vector2 _roomSize;
 
+    [SerializeField] private bool _usingHandle;
     [SerializeField] private GameObject ExpandHandleLength;
     [SerializeField] private GameObject ExpandHandleWidth;
 
@@ -72,7 +73,8 @@ public class RoomExpand : MonoBehaviour
 
         _previousRoomSizeX = _roomSize.x;
 
-        ExpandHandleLength.transform.position = new Vector3(transform.position.x + _wallSize.x, transform.position.y + 2,
+        ExpandHandleLength.transform.position = new Vector3(transform.position.x + _wallSize.x,
+            transform.position.y + 2,
             transform.position.z);
         ExpandHandleWidth.transform.position = new Vector3(transform.position.x, transform.position.y + 2,
             transform.position.z + _wallSize.y);
@@ -85,11 +87,17 @@ public class RoomExpand : MonoBehaviour
 
     private void Update()
     {
-        float diffA = ExpandHandleLength.transform.position.x - _initialHandleLengthPosition;
-        float diffB = ExpandHandleWidth.transform.position.z - _initialHandleWidthPosition;
-
-        _roomSize.x = _wallSize.x + diffA;
-        _roomSize.y = _wallSize.y + diffB;
+        float diffA = 0;
+        float diffB = 0;
+        
+        if (_usingHandle)
+        {
+            diffA = ExpandHandleLength.transform.position.x - _initialHandleLengthPosition;
+            diffB = ExpandHandleWidth.transform.position.z - _initialHandleWidthPosition;
+            
+            _roomSize.x = _wallSize.x + diffA;
+            _roomSize.y = _wallSize.y + diffB;
+        }
 
         //Limit to minimum
         if (_roomSize.x <= _wallSize.x)

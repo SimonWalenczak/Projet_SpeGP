@@ -169,10 +169,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _roomMeshes: {fileID: 11400000, guid: 3578040a8d360e447abf39c752f1b347, type: 2}
   _roomSize: {x: 0, y: 0}
+  _usingHandle: 1
   ExpandHandleLength: {fileID: 2049277787}
   ExpandHandleWidth: {fileID: 987609647}
   UsingGenerationStep: 0
-  _regenerationStep: 0
+  _regenerationStep: 1
   RamdomDoorPosition: 0
   DefinedDoorPosition: 1
   _numberOfDoors: 5

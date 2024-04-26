@@ -15,3 +15,4 @@ MonoBehaviour:
   <WallMesh>k__BackingField: {fileID: 5400660067643640574, guid: a290fa0bc5c8f8047af97be3510867fd, type: 3}
   <DoorMesh>k__BackingField: {fileID: 7924210771754313817, guid: 37862b96c35f26540841baecde585516, type: 3}
   <PillarMesh>k__BackingField: {fileID: 4527239019359784145, guid: 6f3bc1f686d32ce49ab40942ec37c486, type: 3}
+  ObjectConditions: []
