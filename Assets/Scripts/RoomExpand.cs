@@ -72,13 +72,13 @@ public class RoomExpand : MonoBehaviour
 
         _previousRoomSizeX = _roomSize.x;
 
-        ExpandHandleLength.transform.position = new Vector3(transform.position.x + _wallSize.x, transform.position.y,
+        ExpandHandleLength.transform.position = new Vector3(transform.position.x + _wallSize.x, transform.position.y + 2,
             transform.position.z);
-        ExpandHandleWidth.transform.position = new Vector3(transform.position.x, transform.position.y,
+        ExpandHandleWidth.transform.position = new Vector3(transform.position.x, transform.position.y + 2,
             transform.position.z + _wallSize.y);
 
-        _initialHandleLengthPosition = ExpandHandleLength.transform.position.x;
-        _initialHandleWidthPosition = ExpandHandleWidth.transform.position.z;
+        _initialHandleLengthPosition = ExpandHandleLength.transform.position.x - (_wallSize.x / 2);
+        _initialHandleWidthPosition = ExpandHandleWidth.transform.position.z - (_wallSize.y / 2);
 
         CreateWalls();
     }
