@@ -7,6 +7,7 @@ TagManager:
   - Door
   - Wall
   - Pillar
+  - Handler
   layers:
   - Default
   - TransparentFX
