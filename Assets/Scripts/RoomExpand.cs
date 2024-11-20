@@ -6,11 +6,9 @@ public class RoomExpand : MonoBehaviour
 {
     #region Fields and Properties
 
-    [Header("Room Meshes")] [SerializeField]
-    private RoomMeshesData _roomMeshes;
+    [Header("Room Meshes")] [SerializeField] private RoomMeshesData _roomMeshes;
 
-    [Space(10)] [Header("Room Properties")] [SerializeField]
-    private Vector2 _roomSize;
+    [Space(10)] [Header("Room Properties")] [SerializeField] private Vector2 _roomSize;
 
     [SerializeField] private bool _usingHandle;
     [SerializeField] private GameObject ExpandHandleLength;
@@ -29,13 +27,8 @@ public class RoomExpand : MonoBehaviour
     [Space(10)] [field: Header("Door Generation")]
     public bool RamdomDoorPosition;
 
-    [HideInInspector] public bool DefinedDoorPosition;
-
-    [Space(10)] [ConditionalHide("RamdomDoorPosition", true)] [SerializeField]
-    private int _numberOfDoors;
-
+    [Space(10)] [ConditionalHide("RamdomDoorPosition", true)] [SerializeField] private int _numberOfDoors;
     private List<GameObject> Walls = new List<GameObject>();
-
     private List<GameObject> Pillars = new List<GameObject>();
 
     //Hidden
@@ -44,23 +37,16 @@ public class RoomExpand : MonoBehaviour
 
     private int _wallCount;
     private Vector2 _wallSize;
-
+    
+    private Vector2 _handleOffset = new Vector2(3, 3);
+    
     #endregion
 
     #region Methods
 
     private void OnValidate()
     {
-        DefinedDoorPosition = !RamdomDoorPosition;
-
-        if (UsingGenerationStep)
-        {
-            _regenerationStepSavedValue = _regenerationStep;
-        }
-        else
-        {
-            _regenerationStepSavedValue = 0;
-        }
+        _regenerationStepSavedValue = UsingGenerationStep ? _regenerationStep : 0;
     }
 
     private void Start()
@@ -68,62 +54,37 @@ public class RoomExpand : MonoBehaviour
         _wallSize.x = _roomMeshes.WallMesh.GetComponent<MeshRenderer>().bounds.size.x;
         _wallSize.y = _roomMeshes.WallMesh.GetComponent<MeshRenderer>().bounds.size.x;
 
-        _roomSize.x = _wallSize.x;
-        _roomSize.y = _wallSize.y;
-
+        _roomSize = new Vector2(_wallSize.x, _wallSize.y);
         _previousRoomSizeX = _roomSize.x;
+        _previousRoomSizeY = _roomSize.y;
 
-        ExpandHandleLength.transform.position = new Vector3(transform.position.x + _wallSize.x,
-            transform.position.y + 2,
-            transform.position.z);
-        ExpandHandleWidth.transform.position = new Vector3(transform.position.x, transform.position.y + 2,
-            transform.position.z + _wallSize.y);
-
-        _initialHandleLengthPosition = ExpandHandleLength.transform.position.x - (_wallSize.x / 2);
-        _initialHandleWidthPosition = ExpandHandleWidth.transform.position.z - (_wallSize.y / 2);
+        ExpandHandleLength.transform.position = new Vector3(transform.position.x + _roomSize.x / 2 + _handleOffset.x, transform.position.y + 2, transform.position.z);
+        ExpandHandleWidth.transform.position = new Vector3(transform.position.x, transform.position.y + 2, transform.position.z + _roomSize.y / 2 + _handleOffset.y);
 
         CreateWalls();
     }
 
     private void Update()
     {
-        float diffA = 0;
-        float diffB = 0;
-        
         if (_usingHandle)
         {
-            diffA = ExpandHandleLength.transform.position.x - _initialHandleLengthPosition;
-            diffB = ExpandHandleWidth.transform.position.z - _initialHandleWidthPosition;
-            
-            _roomSize.x = _wallSize.x + diffA;
-            _roomSize.y = _wallSize.y + diffB;
+            float diffLength = ExpandHandleLength.transform.position.x - (transform.position.x + _roomSize.x / 2 + _handleOffset.x);
+            float diffWidth = ExpandHandleWidth.transform.position.z - (transform.position.z + _roomSize.y / 2 + _handleOffset.y);
+
+            _roomSize.x = Mathf.Max(_wallSize.x, _roomSize.x + diffLength);
+            _roomSize.y = Mathf.Max(_wallSize.y, _roomSize.y + diffWidth);
+
+            ExpandHandleLength.transform.position = new Vector3(transform.position.x + _roomSize.x / 2 + _handleOffset.x, ExpandHandleLength.transform.position.y, ExpandHandleLength.transform.position.z);
+            ExpandHandleWidth.transform.position = new Vector3(ExpandHandleWidth.transform.position.x, ExpandHandleWidth.transform.position.y, transform.position.z + _roomSize.y / 2 + _handleOffset.y);
         }
 
-        //Limit to minimum
-        if (_roomSize.x <= _wallSize.x)
-            _roomSize.x = _wallSize.x;
-        if (_roomSize.y <= _wallSize.y)
-            _roomSize.y = _wallSize.y;
-
-        //Room X
-        if (_roomSize.x > _previousRoomSizeX + _regenerationStepSavedValue)
-        {
-            _previousRoomSizeX = _roomSize.x;
-            CreateWalls();
-        }
-        else if (_roomSize.x < _previousRoomSizeX - _regenerationStepSavedValue)
+        if (_roomSize.x > _previousRoomSizeX + _regenerationStepSavedValue || _roomSize.x < _previousRoomSizeX - _regenerationStepSavedValue)
         {
             _previousRoomSizeX = _roomSize.x;
             CreateWalls();
         }
 
-        //Room Y
-        if (_roomSize.y > _previousRoomSizeY + _regenerationStepSavedValue)
-        {
-            _previousRoomSizeY = _roomSize.y;
-            CreateWalls();
-        }
-        else if (_roomSize.y < _previousRoomSizeY - _regenerationStepSavedValue)
+        if (_roomSize.y > _previousRoomSizeY + _regenerationStepSavedValue || _roomSize.y < _previousRoomSizeY - _regenerationStepSavedValue)
         {
             _previousRoomSizeY = _roomSize.y;
             CreateWalls();
@@ -132,7 +93,6 @@ public class RoomExpand : MonoBehaviour
 
     private void CreateWalls()
     {
-        //Reset Wall List
         foreach (var wall in Walls)
         {
             Destroy(wall);
@@ -140,7 +100,6 @@ public class RoomExpand : MonoBehaviour
 
         Walls.Clear();
 
-        //Reset Pillar List
         foreach (var pillar in Pillars)
         {
             Destroy(pillar);
@@ -148,35 +107,25 @@ public class RoomExpand : MonoBehaviour
 
         Pillars.Clear();
 
-        // Define size of walls
         int wallCountX = Mathf.Max(1, (int)(_roomSize.x / _wallSize.x));
         int wallCountY = Mathf.Max(1, (int)(_roomSize.y / _wallSize.y));
         float scaleX = (_roomSize.x / wallCountX) / _wallSize.x;
         float scaleY = (_roomSize.y / wallCountY) / _wallSize.y;
 
-        //Define if the wall piece is Wall or Door
-
-
-        // Create first row of walls
         for (int i = 0; i < wallCountX; i++)
         {
-            Vector3 positionX = transform.position +
-                                new Vector3(-_roomSize.x / 2 + _wallSize.x * scaleX / 2 + i * scaleX * _wallSize.x, 0,
-                                    +_roomSize.y / 2);
+            Vector3 positionX = transform.position + new Vector3(-_roomSize.x / 2 + _wallSize.x * scaleX / 2 + i * scaleX * _wallSize.x, 0, +_roomSize.y / 2);
             Quaternion rotationX = transform.rotation;
             Vector3 localScaleX = new Vector3(scaleX, 1, 1);
 
             GameObject currentWallX = null;
-
-
+            
             currentWallX = Instantiate(_roomMeshes.WallMesh, positionX, rotationX);
-
 
             currentWallX.transform.localScale = localScaleX;
             currentWallX.transform.parent = transform;
             Walls.Add(currentWallX);
 
-            // Add pillar between walls
             if (i < wallCountX - 1)
             {
                 Vector3 pillarPosition = positionX + new Vector3(scaleX * _wallSize.x / 2, 0, 0);
@@ -187,26 +136,19 @@ public class RoomExpand : MonoBehaviour
             }
         }
 
-        // Create second row of walls parallel to the first row
         for (int j = 0; j < wallCountX; j++)
         {
-            Vector3 positionY = transform.position +
-                                new Vector3(-_roomSize.x / 2 + _wallSize.x * scaleX / 2 + j * scaleX * _wallSize.x, 0,
-                                    +_roomSize.y / 2 - _roomSize.y);
+            Vector3 positionY = transform.position + new Vector3(-_roomSize.x / 2 + _wallSize.x * scaleX / 2 + j * scaleX * _wallSize.x, 0, +_roomSize.y / 2 - _roomSize.y);
             Quaternion rotationY = transform.rotation;
             Vector3 localScaleY = new Vector3(scaleX, 1, 1);
 
             GameObject currentWallY = null;
-
-
             currentWallY = Instantiate(_roomMeshes.WallMesh, positionY, rotationY);
-
 
             currentWallY.transform.localScale = localScaleY;
             currentWallY.transform.parent = transform;
             Walls.Add(currentWallY);
 
-            // Add pillar between walls
             if (j < wallCountX - 1)
             {
                 Vector3 pillarPosition = positionY + new Vector3(scaleX * _wallSize.x / 2, 0, 0);
@@ -220,9 +162,7 @@ public class RoomExpand : MonoBehaviour
         // Create left wall
         for (int k = 0; k < wallCountY; k++)
         {
-            Vector3 positionLeft = transform.position +
-                                   new Vector3(-_roomSize.x / 2, 0,
-                                       -_roomSize.y / 2 + _wallSize.y * scaleY / 2 + k * scaleY * _wallSize.y);
+            Vector3 positionLeft = transform.position + new Vector3(-_roomSize.x / 2, 0, -_roomSize.y / 2 + _wallSize.y * scaleY / 2 + k * scaleY * _wallSize.y);
             Quaternion rotationLeft = Quaternion.Euler(0, 90, 0); // Rotate 90 degrees for left wall
             Vector3 localScaleLeft = new Vector3(scaleY, 1, 1);
 
@@ -234,7 +174,6 @@ public class RoomExpand : MonoBehaviour
             currentWallLeft.transform.parent = transform;
             Walls.Add(currentWallLeft);
 
-            // Add pillar between walls
             if (k < wallCountY - 1)
             {
                 Vector3 pillarPosition = positionLeft + new Vector3(0, 0, scaleY * _wallSize.y / 2);
@@ -263,7 +202,6 @@ public class RoomExpand : MonoBehaviour
             currentWallRight.transform.parent = transform;
             Walls.Add(currentWallRight);
 
-            // Add pillar between walls
             if (l < wallCountY - 1)
             {
                 Vector3 pillarPosition = positionRight + new Vector3(0, 0, scaleY * _wallSize.y / 2);
@@ -301,18 +239,14 @@ public class RoomExpand : MonoBehaviour
         Pillars.Add(cornerPillar4);
     }
 
-    // Method to generate doors based on the number specified by the user
     public void GenerateDoorsRandomPosition()
     {
         ResetWalls();
 
-        // Filter out walls that are not doors
         List<GameObject> wallPieces = Walls.FindAll(wall => wall.CompareTag("Wall"));
 
-        // Ensure the number of doors does not exceed the number of available wall pieces
         int numberOfDoorsToGenerate = Mathf.Min(_numberOfDoors, wallPieces.Count);
 
-        // Generate doors
         for (int i = 0; i < numberOfDoorsToGenerate; i++)
         {
             int randomIndex = Random.Range(0, wallPieces.Count);
@@ -321,29 +255,23 @@ public class RoomExpand : MonoBehaviour
             Quaternion rotation = wallToReplace.transform.rotation;
             Vector3 scale = wallToReplace.transform.localScale;
 
-            // Instantiate door mesh and replace the wall mesh
             GameObject door = Instantiate(_roomMeshes.DoorMesh, position, rotation);
             door.transform.localScale = scale;
             door.transform.parent = transform;
 
-            // Remove the wall from the list and destroy it
             Walls.Remove(wallToReplace);
             Destroy(wallToReplace);
 
-            // Add the door to the list
             Walls.Add(door);
 
-            // Remove the wall piece from the list of available wall pieces
             wallPieces.RemoveAt(randomIndex);
         }
     }
 
     private void ResetWalls()
     {
-        // Create a separate list to hold the walls that need to be reset
         List<GameObject> wallsToReset = new List<GameObject>();
 
-        // Find walls that are doors and add them to the list of walls to reset
         foreach (var wall in Walls)
         {
             if (wall.CompareTag("Door"))
@@ -352,16 +280,12 @@ public class RoomExpand : MonoBehaviour
             }
         }
 
-        // Reset the walls
         foreach (var wall in wallsToReset)
         {
-            // Instantiate a new wall mesh at the same position, rotation, and scale as the door
-            GameObject newWall =
-                Instantiate(_roomMeshes.WallMesh, wall.transform.position, wall.transform.rotation);
+            GameObject newWall = Instantiate(_roomMeshes.WallMesh, wall.transform.position, wall.transform.rotation);
             newWall.transform.localScale = wall.transform.localScale;
             newWall.transform.parent = transform;
 
-            // Remove the door and add the new wall to the list of walls
             Walls.Remove(wall);
             Destroy(wall);
 
