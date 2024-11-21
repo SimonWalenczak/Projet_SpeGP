@@ -1,18 +1,21 @@
+using Procedural;
 using UnityEditor;
-using UnityEngine;
 
-[CustomEditor(typeof(RoomExpand))]
-public class DoorGenerationEditor : Editor
+namespace Editor
 {
-    public override void OnInspectorGUI()
+    [CustomEditor(typeof(RoomExpand))]
+    public class DoorGenerationEditor : UnityEditor.Editor
     {
-        DrawDefaultInspector();
-
-        RoomExpand roomExpand = (RoomExpand)target;
-
-        if (GUILayout.Button("Generate Doors"))
+        public override void OnInspectorGUI()
         {
-            roomExpand.GenerateDoorsRandomPosition();
+            DrawDefaultInspector();
+
+            // RoomExpand roomExpand = (RoomExpand)target;
+            //
+            // if (GUILayout.Button("Generate Doors"))
+            // {
+            //     roomExpand.GenerateDoorsRandomPosition();
+            // }
         }
     }
 }
