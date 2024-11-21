@@ -10,9 +10,8 @@ public class RoomExpand : MonoBehaviour
 
     [Space(10)] [Header("Room Properties")] [SerializeField] private Vector2 _roomSize;
 
-    [SerializeField] private bool _usingHandle;
-    [SerializeField] private GameObject ExpandHandleLength;
-    [SerializeField] private GameObject ExpandHandleWidth;
+    [SerializeField] private Transform ExpandHandleLength;
+    [SerializeField] private Transform ExpandHandleWidth;
 
     private float _initialHandleLengthPosition;
     private float _initialHandleWidthPosition;
@@ -37,9 +36,15 @@ public class RoomExpand : MonoBehaviour
 
     private int _wallCount;
     private Vector2 _wallSize;
-    
+
     private Vector2 _handleOffset = new Vector2(3, 3);
-    
+
+    private Transform _selectedHandle;
+    private Vector3 _handleStartPosition;
+    private Vector3 _dragStartPosition;
+
+    private UnityEngine.Camera _mainCamera;
+
     #endregion
 
     #region Methods
@@ -51,6 +56,8 @@ public class RoomExpand : MonoBehaviour
 
     private void Start()
     {
+        _mainCamera = UnityEngine.Camera.main;
+
         _wallSize.x = _roomMeshes.WallMesh.GetComponent<MeshRenderer>().bounds.size.x;
         _wallSize.y = _roomMeshes.WallMesh.GetComponent<MeshRenderer>().bounds.size.x;
 
@@ -66,17 +73,19 @@ public class RoomExpand : MonoBehaviour
 
     private void Update()
     {
-        if (_usingHandle)
-        {
-            float diffLength = ExpandHandleLength.transform.position.x - (transform.position.x + _roomSize.x / 2 + _handleOffset.x);
-            float diffWidth = ExpandHandleWidth.transform.position.z - (transform.position.z + _roomSize.y / 2 + _handleOffset.y);
+        float diffLength = ExpandHandleLength.transform.position.x - (transform.position.x + _roomSize.x / 2 + _handleOffset.x);
+        float diffWidth = ExpandHandleWidth.transform.position.z - (transform.position.z + _roomSize.y / 2 + _handleOffset.y);
 
-            _roomSize.x = Mathf.Max(_wallSize.x, _roomSize.x + diffLength);
-            _roomSize.y = Mathf.Max(_wallSize.y, _roomSize.y + diffWidth);
+        _roomSize.x = Mathf.Max(_wallSize.x, _roomSize.x + diffLength);
+        _roomSize.y = Mathf.Max(_wallSize.y, _roomSize.y + diffWidth);
 
-            ExpandHandleLength.transform.position = new Vector3(transform.position.x + _roomSize.x / 2 + _handleOffset.x, ExpandHandleLength.transform.position.y, ExpandHandleLength.transform.position.z);
-            ExpandHandleWidth.transform.position = new Vector3(ExpandHandleWidth.transform.position.x, ExpandHandleWidth.transform.position.y, transform.position.z + _roomSize.y / 2 + _handleOffset.y);
-        }
+        ExpandHandleLength.transform.position = new Vector3(transform.position.x + _roomSize.x / 2 + _handleOffset.x, ExpandHandleLength.transform.position.y,
+            ExpandHandleLength.transform.position.z);
+        ExpandHandleWidth.transform.position = new Vector3(ExpandHandleWidth.transform.position.x, ExpandHandleWidth.transform.position.y,
+            transform.position.z + _roomSize.y / 2 + _handleOffset.y);
+
+
+        HandleInput();
 
         if (_roomSize.x > _previousRoomSizeX + _regenerationStepSavedValue || _roomSize.x < _previousRoomSizeX - _regenerationStepSavedValue)
         {
@@ -119,7 +128,7 @@ public class RoomExpand : MonoBehaviour
             Vector3 localScaleX = new Vector3(scaleX, 1, 1);
 
             GameObject currentWallX = null;
-            
+
             currentWallX = Instantiate(_roomMeshes.WallMesh, positionX, rotationX);
 
             currentWallX.transform.localScale = localScaleX;
@@ -291,6 +300,60 @@ public class RoomExpand : MonoBehaviour
 
             Walls.Add(newWall);
         }
+    }
+
+    private void HandleInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            // Détection du handler via un raycast
+            Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                if (hit.transform == ExpandHandleLength || hit.transform == ExpandHandleWidth)
+                {
+                    _selectedHandle = hit.transform;
+                    _dragStartPosition = GetMousePositionOnPlane(hit.point, Vector3.up);
+                    _handleStartPosition = _selectedHandle.position;
+                }
+            }
+        }
+
+        if (Input.GetMouseButton(0) && _selectedHandle != null)
+        {
+            // Obtenir la position actuelle de la souris sur le même plan
+            Vector3 currentMousePosition = GetMousePositionOnPlane(_dragStartPosition, Vector3.up);
+            Vector3 delta = currentMousePosition - _dragStartPosition;
+
+            if (_selectedHandle == ExpandHandleLength)
+            {
+                // Déplacer le handle en X
+                _selectedHandle.position = _handleStartPosition + new Vector3(delta.x, 0, 0);
+            }
+            else if (_selectedHandle == ExpandHandleWidth)
+            {
+                // Déplacer le handle en Z
+                _selectedHandle.position = _handleStartPosition + new Vector3(0, 0, delta.z);
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            _selectedHandle = null;
+        }
+    }
+
+    private Vector3 GetMousePositionOnPlane(Vector3 planePoint, Vector3 planeNormal)
+    {
+        Plane plane = new Plane(planeNormal, planePoint);
+        Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
+
+        if (plane.Raycast(ray, out float enter))
+        {
+            return ray.GetPoint(enter);
+        }
+
+        return planePoint;
     }
 
     #endregion

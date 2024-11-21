@@ -1,6 +1,5 @@
-using System;
-using Inputs;
 using UnityEngine;
+using DG.Tweening;
 
 namespace Camera
 {
@@ -8,17 +7,18 @@ namespace Camera
     {
         #region Properties
         
-        [field: SerializeField] public Transform targetObject { get; private set; }
+        [field: Header("Camera Settings")]
+        [field: SerializeField] public Transform target { get; private set; }
         [field: SerializeField] public float rotationSpeed { get; private set; }
+        [field: SerializeField] public float moveSpeed { get; private set; }
         [field: SerializeField] public float zoomSpeed { get; private set; }
         [field: SerializeField] public float minZoom { get; private set; }
         [field: SerializeField] public float maxZoom { get; private set; }
 
-        private UnityEngine.Camera cam;
-        private float currentAngle = 0f;
-        private float targetAngle = 0f;
-        private float currentZoom = 10f;
-        private bool isRotating = false;
+        private Vector3 _currentForward;
+        private Vector3 _currentRight;
+        private float _currentDistance = 20f;
+        private bool _isRotating;
 
         #endregion
         
@@ -26,76 +26,89 @@ namespace Camera
         
         private void Start()
         {
-            if (InputManager.Instance == null)
+            if (target == null)
             {
-                throw new Exception("no input manager");
+                Debug.LogError("Target not assigned. Please assign a target in the inspector.");
+                return;
             }
 
-            InputManager.Instance.CameraInput.OnLeftArrowClickDown += StartRotateLeft;
-            InputManager.Instance.CameraInput.OnRightArrowClickDown += StartRotateRight;
-            InputManager.Instance.CameraInput.OnMouseScroolForward += ZoomInCamera;
-            InputManager.Instance.CameraInput.OnMouseScroolBack += ZoomOutCamera;
-
-            cam = UnityEngine.Camera.main;
-            currentZoom = Vector3.Distance(transform.position, targetObject.position);
+            UpdateMovementAxes();
         }
 
         private void Update()
         {
-            if (isRotating)
+            if (target == null) return;
+
+            HandleRotationInput();
+            HandleMovementInput();
+            HandleZoomInput();
+            UpdateCameraPosition();
+        }
+
+        private void HandleRotationInput()
+        {
+            if (Input.GetKeyDown(KeyCode.Q))
+                RotateAroundTarget(-90f);
+            else if (Input.GetKeyDown(KeyCode.E))
+                RotateAroundTarget(90f);
+        }
+
+        private void RotateAroundTarget(float angle)
+        {
+            if (_isRotating) return;
+
+            _isRotating = true;
+            target.DORotate(target.eulerAngles + new Vector3(0, angle, 0), 0.5f)
+                .OnComplete(UpdateMovementAxes);
+        }
+
+        private void HandleMovementInput()
+        {
+            Vector3 moveDirection = Vector3.zero;
+
+            if (Input.GetKey(KeyCode.W)) moveDirection += _currentForward;
+            if (Input.GetKey(KeyCode.S)) moveDirection -= _currentForward;
+            if (Input.GetKey(KeyCode.A)) moveDirection -= _currentRight;
+            if (Input.GetKey(KeyCode.D)) moveDirection += _currentRight;
+
+            ApplyMovement(moveDirection);
+        }
+
+        private void ApplyMovement(Vector3 direction)
+        {
+            direction.Normalize();
+            target.position += direction * moveSpeed * Time.deltaTime;
+        }
+
+        private void HandleZoomInput()
+        {
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            if (scroll != 0)
             {
-                float step = rotationSpeed * Time.deltaTime;
-                float angle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, step);
-
-                RotateCamera(angle);
-
-                if (Mathf.Approximately(angle, targetAngle))
-                {
-                    isRotating = false;
-                }
+                AdjustZoom(scroll);
             }
         }
 
-        private void StartRotateLeft()
+        private void AdjustZoom(float scroll)
         {
-            if (isRotating) return;
-
-            targetAngle = currentAngle - 90f;
-            isRotating = true;
+            _currentDistance -= scroll * zoomSpeed;
+            _currentDistance = Mathf.Clamp(_currentDistance, minZoom, maxZoom);
         }
 
-        private void StartRotateRight()
+        private void UpdateMovementAxes()
         {
-            if (isRotating) return;
-
-            targetAngle = currentAngle + 90f;
-            isRotating = true;
-        }
-
-        private void RotateCamera(float angle)
-        {
-            transform.RotateAround(targetObject.position, Vector3.up, angle - currentAngle);
-            currentAngle = angle;
-        }
-
-        private void ZoomInCamera()
-        {
-            currentZoom = Mathf.Clamp(currentZoom - zoomSpeed * Time.deltaTime, minZoom, maxZoom);
-            UpdateCameraPosition();
-        }
-
-        private void ZoomOutCamera()
-        {
-            currentZoom = Mathf.Clamp(currentZoom + zoomSpeed * Time.deltaTime, minZoom, maxZoom);
-            UpdateCameraPosition();
+            _currentForward = target.forward;
+            _currentRight = target.right;
+            _isRotating = false;
         }
 
         private void UpdateCameraPosition()
         {
-            Vector3 direction = (transform.position - targetObject.position).normalized;
-            transform.position = targetObject.position + direction * currentZoom;
+            Vector3 targetPosition = target.position - target.forward * _currentDistance + Vector3.up * (_currentDistance * 0.5f);
+            transform.position = targetPosition;
 
-            transform.LookAt(targetObject);
+            Vector3 directionToTarget = target.position - transform.position;
+            transform.rotation = Quaternion.LookRotation(directionToTarget, Vector3.up);
         }
         
         #endregion
