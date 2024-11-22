@@ -1,15 +1,26 @@
+using System.Collections.Generic;
 using TMPro;
+using UI;
 using UnityEngine;
 
 namespace Managers
 {
     public class UIManager : MonoBehaviour
     {
-        [SerializeField] private TMP_InputField _doorsGenerateInputField;
+        public List<LeafletMenu> LeafletMenus;
 
         public void OnClickDoorGeneration()
         {
             RoomEditorManager.Instance.RoomExpand.GenerateDoorsRandomPosition();
+        }
+
+        public void ResetAllLeafletMenus()
+        {
+            foreach (var leafletMenu in LeafletMenus)
+            {
+                if (leafletMenu.isOpen)
+                    leafletMenu.ToggleMenu();
+            }
         }
     }
 }

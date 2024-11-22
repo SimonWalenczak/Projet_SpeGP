@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Managers;
 using UnityEngine;
 
 namespace CameraManager
@@ -55,6 +56,8 @@ namespace CameraManager
 
         private void RotateAroundTarget(float angle)
         {
+            RoomEditorManager.Instance.UIManager.ResetAllLeafletMenus();
+            
             if (_isRotating) return;
 
             _isRotating = true;

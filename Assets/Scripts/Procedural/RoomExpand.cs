@@ -10,42 +10,40 @@ namespace Procedural
 
         [Header("Room Meshes")] [SerializeField] private RoomMeshesData _roomMeshes;
 
-        [Space(10)] [Header("Room Properties")] [SerializeField] private Vector2 _roomSize;
+        [Space(10)] [Header("Room Properties")] private Vector2 _roomSize;
 
-        [SerializeField] private Transform ExpandHandleLength;
+        [Header("Expand Handles")] [SerializeField] private Transform ExpandHandleLength;
         [SerializeField] private Transform ExpandHandleWidth;
+
+        [Space(10)] public bool UsingGenerationStep;
+
+        #region Hidden Properties
+
+        private Camera _mainCamera;
 
         private float _initialHandleLengthPosition;
         private float _initialHandleWidthPosition;
 
-        [Space(10)] public bool UsingGenerationStep;
-
-        [ConditionalHide("UsingGenerationStep", true)] [SerializeField]
-        private float _regenerationStep;
-
-        private float _regenerationStepSavedValue;
-
-        [Space(10)] [field: Header("Door Generation")]
-        public bool RamdomDoorPosition;
-
-        [Space(10)] [ConditionalHide("RamdomDoorPosition", true)] [SerializeField] private int _numberOfDoors;
-        private List<GameObject> Walls = new List<GameObject>();
-        private List<GameObject> Pillars = new List<GameObject>();
-
-        //Hidden
         private float _previousRoomSizeX;
         private float _previousRoomSizeY;
 
         private int _wallCount;
         private Vector2 _wallSize;
 
-        private Vector2 _handleOffset = new Vector2(3, 3);
-
         private Transform _selectedHandle;
         private Vector3 _handleStartPosition;
         private Vector3 _dragStartPosition;
+        private Vector2 _handleOffset = new Vector2(3, 3);
 
-        private Camera _mainCamera;
+        private float _regenerationStep;
+        private float _regenerationStepSavedValue;
+
+        private List<GameObject> Walls = new List<GameObject>();
+        private List<GameObject> Pillars = new List<GameObject>();
+
+        [HideInInspector] public int NumberOfDoors;
+
+        #endregion
 
         #endregion
 
@@ -256,7 +254,7 @@ namespace Procedural
 
             List<GameObject> wallPieces = Walls.FindAll(wall => wall.CompareTag("Wall"));
 
-            int numberOfDoorsToGenerate = Mathf.Min(_numberOfDoors, wallPieces.Count);
+            int numberOfDoorsToGenerate = Mathf.Min(NumberOfDoors, wallPieces.Count);
 
             for (int i = 0; i < numberOfDoorsToGenerate; i++)
             {
