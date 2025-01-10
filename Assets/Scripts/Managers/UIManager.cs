@@ -11,7 +11,7 @@ namespace Managers
 
         public void OnClickDoorGeneration()
         {
-            RoomEditorManager.Instance.RoomExpand.GenerateDoorsRandomPosition();
+            RoomEditorManager.Instance.GenerateDoors();
         }
 
         public void ResetAllLeafletMenus()

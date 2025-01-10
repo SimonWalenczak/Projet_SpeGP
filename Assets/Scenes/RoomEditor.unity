@@ -173,6 +173,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Padding: {x: -8, y: -5, z: -8, w: -5}
   m_Softness: {x: 0, y: 0}
+--- !u!1 &220753298
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 220753299}
+  - component: {fileID: 220753300}
+  m_Layer: 0
+  m_Name: RoomModifier
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &220753299
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 220753298}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2121032020}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &220753300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 220753298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 467510d5f3c64871bb675ed8a19c6273, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &255056857
 GameObject:
   m_ObjectHideFlags: 0
@@ -622,7 +666,7 @@ GameObject:
   - component: {fileID: 616359352}
   - component: {fileID: 616359353}
   m_Layer: 0
-  m_Name: Room
+  m_Name: RoomPrimalExpand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -655,11 +699,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d16af6c8454e1141a12e3612fb2915f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _roomMeshes: {fileID: 11400000, guid: 3578040a8d360e447abf39c752f1b347, type: 2}
   ExpandHandleLength: {fileID: 2049277791}
   ExpandHandleWidth: {fileID: 987609651}
   UsingGenerationStep: 0
-  NumberOfDoors: 0
 --- !u!1 &635011752
 GameObject:
   m_ObjectHideFlags: 0
@@ -1249,6 +1291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5de3517589b85a94596d4a856976da97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CameraState: 0
   <target>k__BackingField: {fileID: 968209280}
   <rotationSpeed>k__BackingField: 90
   <moveSpeed>k__BackingField: 20
@@ -1923,7 +1966,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 1511668802}
-  scriptCible: {fileID: 616359353}
+  scriptCible: {fileID: 1759059723}
   selectedVariable: NumberOfDoors
 --- !u!1 &1549735849
 GameObject:
@@ -2165,6 +2208,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1660668486}
   m_CullTransparentMesh: 1
+--- !u!1 &1759059722
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1759059724}
+  - component: {fileID: 1759059723}
+  m_Layer: 0
+  m_Name: DoorGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1759059723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759059722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 249dd5fd9b1417b4fb749ee553ae440c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NumberOfDoors: 0
+--- !u!4 &1759059724
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759059722}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2121032020}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1945210102
 GameObject:
   m_ObjectHideFlags: 0
@@ -2481,7 +2569,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPersistant: 0
   <UIManager>k__BackingField: {fileID: 1957878582}
-  <RoomExpand>k__BackingField: {fileID: 616359353}
+  <RoomPrimalExpand>k__BackingField: {fileID: 616359353}
+  <RoomModifier>k__BackingField: {fileID: 220753300}
+  <DoorGenerator>k__BackingField: {fileID: 1759059723}
+  RoomMeshes: {fileID: 11400000, guid: 3578040a8d360e447abf39c752f1b347, type: 2}
+  WallPieces: []
+  Pillars: []
+  EditorState: 0
 --- !u!4 &2121032020
 Transform:
   m_ObjectHideFlags: 0
@@ -2497,6 +2591,8 @@ Transform:
   m_Children:
   - {fileID: 1957878583}
   - {fileID: 616359352}
+  - {fileID: 1759059724}
+  - {fileID: 220753299}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807

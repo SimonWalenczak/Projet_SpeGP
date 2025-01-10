@@ -1,14 +1,11 @@
-using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using Managers;
 
 namespace Procedural
 {
-    public class RoomExpand : MonoBehaviour
+    public class RoomPrimalExpand : MonoBehaviour
     {
         #region Fields and Properties
-
-        [Header("Room Meshes")] [SerializeField] private RoomMeshesData _roomMeshes;
 
         [Space(10)] [Header("Room Properties")] private Vector2 _roomSize;
 
@@ -44,12 +41,6 @@ namespace Procedural
         float scaleY;
         int currentWallIndex;
 
-
-        private List<GameObject> Walls = new List<GameObject>();
-        private List<GameObject> Pillars = new List<GameObject>();
-
-        [HideInInspector] public int NumberOfDoors;
-
         #endregion
 
         #endregion
@@ -65,8 +56,8 @@ namespace Procedural
         {
             _mainCamera = Camera.main;
 
-            _wallSize.x = _roomMeshes.WallMesh.GetComponent<MeshRenderer>().bounds.size.x;
-            _wallSize.y = _roomMeshes.WallMesh.GetComponent<MeshRenderer>().bounds.size.x;
+            _wallSize.x = RoomEditorManager.Instance.RoomMeshes.WallMesh.GetComponent<MeshRenderer>().bounds.size.x;
+            _wallSize.y = RoomEditorManager.Instance.RoomMeshes.WallMesh.GetComponent<MeshRenderer>().bounds.size.x;
 
             _roomSize = new Vector2(_wallSize.x, _wallSize.y);
             _previousRoomSizeX = _roomSize.x;
@@ -119,19 +110,20 @@ namespace Procedural
             GameObject GetOrCreateWall(Vector3 position, Quaternion rotation, Vector3 scale)
             {
                 GameObject wall;
-                if (currentWallIndex < Walls.Count)
+                if (currentWallIndex < RoomEditorManager.Instance.WallPieces.Count)
                 {
-                    wall = Walls[currentWallIndex];
+                    wall = RoomEditorManager.Instance.WallPieces[currentWallIndex];
                     wall.transform.position = position;
                     wall.transform.rotation = rotation;
                     wall.transform.localScale = scale;
                 }
                 else
                 {
-                    wall = Instantiate(_roomMeshes.WallMesh, position, rotation);
+                    wall = Instantiate(RoomEditorManager.Instance.RoomMeshes.WallMesh, position, rotation);
                     wall.transform.localScale = scale;
                     wall.transform.parent = transform;
-                    Walls.Add(wall);
+                    wall.GetComponent<WallPiece>().PieceType = PieceType.Wall;
+                    RoomEditorManager.Instance.WallPieces.Add(wall);
                 }
 
                 currentWallIndex++;
@@ -170,12 +162,12 @@ namespace Procedural
                 GetOrCreateWall(position, rotation, scale);
             }
 
-            for (int i = currentWallIndex; i < Walls.Count; i++)
+            for (int i = currentWallIndex; i < RoomEditorManager.Instance.WallPieces.Count; i++)
             {
-                Destroy(Walls[i]);
+                Destroy(RoomEditorManager.Instance.WallPieces[i]);
             }
 
-            Walls.RemoveRange(currentWallIndex, Walls.Count - currentWallIndex);
+            RoomEditorManager.Instance.WallPieces.RemoveRange(currentWallIndex, RoomEditorManager.Instance.WallPieces.Count - currentWallIndex);
 
             CreateCornerAndIntermediatePillars(scaleX, scaleY, requiredWallCountX, requiredWallCountY);
         }
@@ -187,18 +179,19 @@ namespace Procedural
             GameObject GetOrCreatePillar(Vector3 position, Vector3 scale)
             {
                 GameObject pillar;
-                if (currentPillarIndex < Pillars.Count)
+                if (currentPillarIndex < RoomEditorManager.Instance.Pillars.Count)
                 {
-                    pillar = Pillars[currentPillarIndex];
+                    pillar = RoomEditorManager.Instance.Pillars[currentPillarIndex];
                     pillar.transform.position = position;
                     pillar.transform.localScale = scale;
                 }
                 else
                 {
-                    pillar = Instantiate(_roomMeshes.PillarMesh, position, Quaternion.identity);
+                    pillar = Instantiate(RoomEditorManager.Instance.RoomMeshes.PillarMesh, position, Quaternion.identity);
                     pillar.transform.localScale = scale;
                     pillar.transform.parent = transform;
-                    Pillars.Add(pillar);
+                    pillar.GetComponent<WallPiece>().PieceType = PieceType.Pillar;
+                    RoomEditorManager.Instance.Pillars.Add(pillar);
                 }
 
                 currentPillarIndex++;
@@ -232,66 +225,12 @@ namespace Procedural
                 GetOrCreatePillar(transform.position + new Vector3(+_roomSize.x / 2, 0, offsetY), new Vector3(scaleX, 1, scaleY));
             }
 
-            for (int i = currentPillarIndex; i < Pillars.Count; i++)
+            for (int i = currentPillarIndex; i < RoomEditorManager.Instance.Pillars.Count; i++)
             {
-                Destroy(Pillars[i]);
+                Destroy(RoomEditorManager.Instance.Pillars[i]);
             }
 
-            Pillars.RemoveRange(currentPillarIndex, Pillars.Count - currentPillarIndex);
-        }
-
-        public void GenerateDoorsRandomPosition()
-        {
-            ResetWalls();
-
-            List<GameObject> wallPieces = Walls.FindAll(wall => wall.CompareTag("Wall"));
-
-            int numberOfDoorsToGenerate = Mathf.Min(NumberOfDoors, wallPieces.Count);
-
-            for (int i = 0; i < numberOfDoorsToGenerate; i++)
-            {
-                int randomIndex = Random.Range(0, wallPieces.Count);
-                GameObject wallToReplace = wallPieces[randomIndex];
-                Vector3 position = wallToReplace.transform.position;
-                Quaternion rotation = wallToReplace.transform.rotation;
-                Vector3 scale = wallToReplace.transform.localScale;
-
-                GameObject door = Instantiate(_roomMeshes.DoorMesh, position, rotation);
-                door.transform.localScale = scale;
-                door.transform.parent = transform;
-
-                Walls.Remove(wallToReplace);
-                Destroy(wallToReplace);
-
-                Walls.Add(door);
-
-                wallPieces.RemoveAt(randomIndex);
-            }
-        }
-
-        private void ResetWalls()
-        {
-            List<GameObject> wallsToReset = new List<GameObject>();
-
-            foreach (var wall in Walls)
-            {
-                if (wall.CompareTag("Door"))
-                {
-                    wallsToReset.Add(wall);
-                }
-            }
-
-            foreach (var wall in wallsToReset)
-            {
-                GameObject newWall = Instantiate(_roomMeshes.WallMesh, wall.transform.position, wall.transform.rotation);
-                newWall.transform.localScale = wall.transform.localScale;
-                newWall.transform.parent = transform;
-
-                Walls.Remove(wall);
-                Destroy(wall);
-
-                Walls.Add(newWall);
-            }
+            RoomEditorManager.Instance.Pillars.RemoveRange(currentPillarIndex, RoomEditorManager.Instance.Pillars.Count - currentPillarIndex);
         }
 
         private void HandleInput()

@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace Editor
 {
-    [CustomEditor(typeof(RoomExpand))]
+    [CustomEditor(typeof(RoomPrimalExpand))]
     public class DoorGenerationEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()

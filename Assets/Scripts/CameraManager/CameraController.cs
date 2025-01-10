@@ -4,9 +4,17 @@ using UnityEngine;
 
 namespace CameraManager
 {
+    public enum CameraState
+    {
+        FreeView = 0,
+        TopView = 1
+    }
+    
     public class CameraController : MonoBehaviour
     {
         #region Properties
+
+        public CameraState CameraState;
         
         [field: Header("Camera Settings")]
         [field: SerializeField] public Transform target { get; private set; }
